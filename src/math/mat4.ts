@@ -1,7 +1,7 @@
 import { Vec3 } from './vec3'
 
 export class Mat4 {
-    m: Float32Array
+    m:Float32Array
 
     constructor() {
         this.m = new Float32Array(16)
@@ -18,7 +18,7 @@ export class Mat4 {
         return this
     }
 
-    multiply(b: Mat4): Mat4 {
+    multiply(b:Mat4): Mat4 {
         const a = this.m
         const result = new Float32Array(16)
 
@@ -34,29 +34,29 @@ export class Mat4 {
         return this
     }
 
-    translate(x: number, y: number, z: number): Mat4 {
+    translate(v:Vec3): Mat4 {
         const translation = new Mat4()
         translation.m.set([
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
-            x, y, z, 1
+            v.x, v.y, v.z, 1
         ])
         return this.multiply(translation)
     }
 
-    scale(x: number, y: number, z: number): Mat4 {
+    scale(v:Vec3): Mat4 {
         const scaling = new Mat4()
         scaling.m.set([
-            x, 0, 0, 0,
-            0, y, 0, 0,
-            0, 0, z, 0,
+            v.x, 0, 0, 0,
+            0, v.y, 0, 0,
+            0, 0, v.z, 0,
             0, 0, 0, 1
         ])
         return this.multiply(scaling)
     }
 
-    rotateX(angle: number): Mat4 {
+    rotateX(angle:number): Mat4 {
         const c = Math.cos(angle)
         const s = Math.sin(angle)
         const rotation = new Mat4()
@@ -69,7 +69,7 @@ export class Mat4 {
         return this.multiply(rotation)
     }
 
-    rotateY(angle: number): Mat4 {
+    rotateY(angle:number): Mat4 {
         const c = Math.cos(angle)
         const s = Math.sin(angle)
         const rotation = new Mat4()
@@ -82,7 +82,7 @@ export class Mat4 {
         return this.multiply(rotation)
     }
 
-    rotateZ(angle: number): Mat4 {
+    rotateZ(angle:number): Mat4 {
         const c = Math.cos(angle)
         const s = Math.sin(angle)
         const rotation = new Mat4()
@@ -95,7 +95,11 @@ export class Mat4 {
         return this.multiply(rotation)
     }
 
-    lookAt(eye: Vec3, center: Vec3, up: Vec3): Mat4 {
+    rotate(rot:Vec3): Mat4 {
+        return this.rotateX(rot.x).rotateY(rot.y).rotateZ(rot.z)
+    }
+
+    lookAt(eye:Vec3, center:Vec3, up:Vec3): Mat4 {
         const z = Vec3.subtract(eye, center).normalize()
         const x = up.cross(z).normalize()
         const y = z.cross(x).normalize()
@@ -109,7 +113,7 @@ export class Mat4 {
         return this
     }
 
-    perspective(fov: number, aspect: number, near: number, far: number): Mat4 {
+    perspective(fov:number, aspect:number, near:number, far:number): Mat4 {
         const f = 1 / Math.tan(fov / 2)
         const nf = 1 / (near - far)
 
@@ -128,7 +132,7 @@ export class Mat4 {
         return clone
     }
 
-    transformVec3(v: Vec3): Vec3 {
+    transformVec3(v:Vec3): Vec3 {
         const x = v.x * this.m[0] + v.y * this.m[4] + v.z * this.m[8 ] + this.m[12]
         const y = v.x * this.m[1] + v.y * this.m[5] + v.z * this.m[9 ] + this.m[13]
         const z = v.x * this.m[2] + v.y * this.m[6] + v.z * this.m[10] + this.m[14]
@@ -182,7 +186,7 @@ export class Mat4 {
         return this
     }
 
-    static fromArray(arr: number[]): Mat4 {
+    static fromArray(arr:number[]): Mat4 {
         const mat = new Mat4()
         if (arr.length === 16) mat.m.set(arr)
         return mat
