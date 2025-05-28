@@ -3,6 +3,10 @@ import { Vec3 } from "../math/vec3.js"
 import { Transform } from "./GameObject.js"
 
 export class Camera {
+    static renderDistance:number = 1000
+    static fogDistance:number = 0.8 * Camera.renderDistance
+    static skyboxColor:Vec3 = new Vec3(0,1,1)
+
     private static instance:Camera | null = null
     static getInstance():Camera {
         if (!Camera.instance) Camera.instance = new Camera()
@@ -34,6 +38,6 @@ export class Camera {
 
     updateProjectionMatrix(): void {
         this.projectionMatrix.identity()
-            .perspective(45, window.innerWidth / window.innerHeight, 0.1, 1000)
+            .perspective(45, window.innerWidth / window.innerHeight, 0.1, Camera.renderDistance)
     }
 }

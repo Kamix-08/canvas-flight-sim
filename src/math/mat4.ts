@@ -137,7 +137,7 @@ export class Mat4 {
         const y = v.x * this.m[1] + v.y * this.m[5] + v.z * this.m[9 ] + this.m[13]
         const z = v.x * this.m[2] + v.y * this.m[6] + v.z * this.m[10] + this.m[14]
         const w = v.x * this.m[3] + v.y * this.m[7] + v.z * this.m[11] + this.m[15]
-        return new Vec3(x, y, z).scale(1 / w)
+        return new Vec3(x, y, z).scale(1 / Math.abs(w))
     }
 
     toArray(): Float32Array {

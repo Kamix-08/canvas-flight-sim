@@ -1,4 +1,4 @@
-import { handleInputs } from "./engine/inputs.js"
+import { handleInputs, handleResize } from "./engine/inputs.js"
 import { Scene } from "./engine/scene.js"
 import { Airplane } from "./game/airplane.js"
 
@@ -19,4 +19,5 @@ function gameLoop(time:number) {
     requestAnimationFrame(gameLoop)
 }
 
+handleResize()
 gameLoop(0)

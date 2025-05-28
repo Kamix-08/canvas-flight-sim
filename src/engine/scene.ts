@@ -22,6 +22,7 @@ export class Scene {
     render(): void {
         const renderer = Renderer.getInstance()
         renderer.clear()
+        renderer.skybox()
 
         this.camera.updateViewMatrix()
 
@@ -43,6 +44,8 @@ export class Scene {
                     const vert = object.mesh!.vertices[index]
                     return finalMatrix.transformVec3(vert)
                 })
+
+                if(vertices.every(v => v.z < 0)) continue
 
                 const color = object.mesh.colors && object.mesh.colors.length > i ? object.mesh.colors[i] : new Vec3(1, 1, 1)
                 const depth = vertices.reduce((a, b) => a + b.z, 0) * 1/3

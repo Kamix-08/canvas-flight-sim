@@ -26,3 +26,28 @@ export function handleInputs(dt:number) {
 
 document.addEventListener('keydown', e => pressedKeys.add   (e.key))
 document.addEventListener('keyup',   e => pressedKeys.delete(e.key))
+
+export function handleResize() {
+    const maxWidth  = 1920
+    const maxHeight = 1080
+
+    const windowRatio = window.innerWidth / window.innerHeight
+    const targetRatio = maxWidth / maxHeight
+
+    let w:number
+    let h:number
+
+    if(windowRatio > targetRatio) {
+        h = Math.min(window.innerHeight, maxHeight)
+        w = h * targetRatio
+    } else {
+        w = Math.min(window.innerWidth, maxWidth)
+        h = w / targetRatio
+    }
+
+    const canvas = document.getElementById('game') as HTMLCanvasElement
+    canvas.width  = w
+    canvas.height = h
+}
+
+window.addEventListener('resize', handleResize)
