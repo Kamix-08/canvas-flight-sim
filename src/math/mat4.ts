@@ -105,9 +105,9 @@ export class Mat4 {
         const y = z.cross(x).normalize()
 
         this.m.set([
-            x.x, x.y, x.z, 0,
-            y.x, y.y, y.z, 0,
-            z.x, z.y, z.z, 0,
+            x.x, y.x, z.x, 0,
+            x.y, y.y, z.y, 0,
+            x.z, y.z, z.z, 0,
             -x.dot(eye), -y.dot(eye), -z.dot(eye), 1
         ])
         return this
@@ -148,5 +148,14 @@ export class Mat4 {
         const mat = new Mat4()
         if (arr.length === 16) mat.m.set(arr)
         return mat
+    }
+
+    transpose(): Mat4 {
+        const result = new Mat4()
+        for (let i = 0; i < 4; i++)
+            for (let j = 0; j < 4; j++)
+                result.m[j * 4 + i] = this.m[i * 4 + j]
+        this.m = result.m
+        return this
     }
 }

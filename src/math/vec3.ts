@@ -34,6 +34,13 @@ export class Vec3 {
         return this.x * v.x + this.y * v.y + this.z * v.z
     }
 
+    multVal(v:Vec3): Vec3 {
+        this.x *= v.x
+        this.y *= v.y
+        this.z *= v.z
+        return this
+    }
+
     cross(v:Vec3): Vec3 {
         return new Vec3(
             this.y * v.z - this.z * v.y,

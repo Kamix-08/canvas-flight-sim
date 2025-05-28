@@ -19,42 +19,18 @@ export class Scene {
         return this
     }
 
-    isInViewFrustum(object: GameObject): boolean {
-        if (!object.mesh) return false
-
-        const radius = Math.max(
-            object.transform.scale.x,
-            object.transform.scale.y,
-            object.transform.scale.z
-        ) * object.mesh.furthest_vertex.length()
-
-        if (!this._cachedViewProjection || this._frameCount !== this.camera.frameCount) {
-            this._cachedViewProjection = this.camera.projectionMatrix.multiply(this.camera.viewMatrix)
-            this._frameCount = this.camera.frameCount
-        }
-
-        const clipSpace = this._cachedViewProjection.transformVec3(object.transform.position)
-
-        return clipSpace.z >= -radius && clipSpace.z <= radius &&
-               Math.abs(clipSpace.x) <= 1 + radius && 
-               Math.abs(clipSpace.y) <= 1 + radius  
-    }
-
     render(): void {
         const renderer = Renderer.getInstance()
         renderer.clear()
 
         this.camera.updateViewMatrix()
-        this.camera.updateProjectionMatrix()
 
         const cameraMatrix:Mat4 = this.camera.projectionMatrix.clone().multiply(this.camera.viewMatrix)
 
-        const camPos = this.camera.transform.position
         const triangles:Triangle[] = []
 
         for (const object of this.objects) {
             if(!object.mesh) continue
-            // if(!this.isInViewFrustum(object)) continue
             
             object.transform.updateModelMatrix()
 
@@ -80,7 +56,4 @@ export class Scene {
         for (const tri of triangles)
             renderer.drawTriangle(tri)
     }
-
-    private _cachedViewProjection?:Mat4
-    private _frameCount:number = -1
 }

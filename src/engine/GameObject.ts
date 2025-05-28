@@ -1,37 +1,31 @@
 import { Vec3 } from "../math/vec3.js"
 import { Mat4 } from "../math/mat4.js"
 
-export class Mesh {
+export interface Mesh {
     vertices:Vec3[]
     indices:number[][]
     colors?:Vec3[]
-
-    furthest_vertex:Vec3 = new Vec3(0, 0, 0)
-
-    constructor(vertices:Vec3[], indices:number[][], colors?:Vec3[]) {
-        this.vertices = vertices
-        this.indices = indices
-        this.colors = colors
-
-        vertices.forEach(v => {
-            if (v.lengthSq() > this.furthest_vertex.lengthSq())
-                this.furthest_vertex = v.clone()
-        })
-    }
 }
 
 export class Transform {
     position:Vec3
     rotation:Vec3
     scale:Vec3
+    front:Vec3
     modelMatrix:Mat4
 
     constructor() {
         this.position = new Vec3()
         this.rotation = new Vec3()
         this.scale = new Vec3(1, 1, 1)
+        this.front = new Vec3()
         this.modelMatrix = new Mat4()
         this.updateModelMatrix()
+    }
+
+    updateFront(): void {
+        const rotationMatrix = new Mat4().rotate(this.rotation)
+        this.front = rotationMatrix.transformVec3(new Vec3(0, 0, 1)).normalize()
     }
 
     updateModelMatrix(): void {
@@ -39,6 +33,8 @@ export class Transform {
             .translate(this.position)
             .rotate(this.rotation)
             .scale(this.scale)
+
+        this.updateFront()
     }
 
     setPosition(pos:Vec3): Transform {
@@ -71,10 +67,13 @@ export class Transform {
         return this
     }
 
-    move(v:Vec3): Transform {
-        const rotMat = new Mat4()
-        rotMat.rotate(this.rotation)
-        this.position.add(rotMat.transformVec3(v))
+    move(v:number): Transform {
+        this.translate(this.front.clone().scale(v))
+        return this
+    }
+
+    moveVec(v:Vec3): Transform {
+        this.translate(new Mat4().rotate(this.rotation).transformVec3(v))
         return this
     }
 }

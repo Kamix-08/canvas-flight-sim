@@ -1,4 +1,5 @@
 import { Mat4 } from "../math/mat4.js"
+import { Vec3 } from "../math/vec3.js"
 import { Transform } from "./GameObject.js"
 
 export class Camera {
@@ -12,21 +13,23 @@ export class Camera {
     viewMatrix:Mat4
     projectionMatrix:Mat4
 
-    frameCount:number = 0
-
     constructor() {
         this.transform = new Transform()
         this.viewMatrix = new Mat4()
         this.projectionMatrix = new Mat4()
+        
+        this.updateProjectionMatrix()
     }
 
     updateViewMatrix(): void {
-        this.frameCount++
+        this.transform.updateFront()
 
         this.viewMatrix.identity()
-            .translate(this.transform.position.scale(-1))
-            .rotate(this.transform.rotation)
-            .scale(this.transform.scale)
+            .lookAt(
+                this.transform.position,
+                this.transform.position.clone().add(this.transform.front),
+                new Vec3(0,1,0)
+            )
     }
 
     updateProjectionMatrix(): void {
