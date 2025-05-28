@@ -1,5 +1,5 @@
-import { Vec3 } from "../math/vec3"
-import { Mat4 } from "../math/mat4"
+import { Vec3 } from "../math/vec3.js"
+import { Mat4 } from "../math/mat4.js"
 
 export class Mesh {
     vertices:Vec3[]

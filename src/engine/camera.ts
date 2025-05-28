@@ -1,5 +1,5 @@
-import { Mat4 } from "../math/mat4"
-import { Transform } from "./GameObject"
+import { Mat4 } from "../math/mat4.js"
+import { Transform } from "./GameObject.js"
 
 export class Camera {
     private static instance:Camera | null = null

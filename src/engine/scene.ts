@@ -1,8 +1,8 @@
-import { GameObject } from "./GameObject"
-import { Renderer } from "./renderer"
-import { Camera } from "./camera"
-import { Mat4 } from "../math/mat4"
-import { Vec3 } from "../math/vec3"
+import { GameObject } from "./GameObject.js"
+import { Renderer } from "./renderer.js"
+import { Camera } from "./camera.js"
+import { Mat4 } from "../math/mat4.js"
+import { Vec3 } from "../math/vec3.js"
 
 export interface Triangle {
     vertices:Vec3[]
@@ -45,27 +45,31 @@ export class Scene {
         renderer.clear()
 
         this.camera.updateViewMatrix()
+        this.camera.updateProjectionMatrix()
+
+        const cameraMatrix:Mat4 = this.camera.projectionMatrix.clone().multiply(this.camera.viewMatrix)
+
         const camPos = this.camera.transform.position
         const triangles:Triangle[] = []
 
         for (const object of this.objects) {
             if(!object.mesh) continue
-            if(!this.isInViewFrustum(object)) continue
+            // if(!this.isInViewFrustum(object)) continue
             
             object.transform.updateModelMatrix()
+
+            const finalMatrix:Mat4 = cameraMatrix.clone().multiply(object.transform.modelMatrix)
 
             for (let i = 0; i < object.mesh.indices.length; i++) {
                 const indices = object.mesh.indices[i]
 
                 const vertices = indices.map(index => {
                     const vert = object.mesh!.vertices[index]
-                    return object.transform.modelMatrix.transformVec3(vert)
+                    return finalMatrix.transformVec3(vert)
                 })
 
-                const color = object.mesh.colors ? object.mesh.colors[i] : new Vec3(1, 1, 1)
-
-                const center = vertices.reduce((a, b) => a.add(b), new Vec3()).scale(1 / vertices.length)
-                const depth = camPos.sub(center).lengthSq()
+                const color = object.mesh.colors && object.mesh.colors.length > i ? object.mesh.colors[i] : new Vec3(1, 1, 1)
+                const depth = vertices.reduce((a, b) => a + b.z, 0) * 1/3
 
                 triangles.push({ vertices, color, depth })
             }
