@@ -38,6 +38,6 @@ export class Camera {
 
     updateProjectionMatrix(): void {
         this.projectionMatrix.identity()
-            .perspective(45, window.innerWidth / window.innerHeight, 0.1, Camera.renderDistance)
+            .perspective(45, window.innerWidth / window.innerHeight, .1, Camera.renderDistance)
     }
 }

@@ -34,7 +34,6 @@ export class Scene {
             if(!object.mesh) continue
             
             object.transform.updateModelMatrix()
-
             const finalMatrix:Mat4 = cameraMatrix.clone().multiply(object.transform.modelMatrix)
 
             for (let i = 0; i < object.mesh.indices.length; i++) {
@@ -45,7 +44,7 @@ export class Scene {
                     return finalMatrix.transformVec3(vert)
                 })
 
-                if(vertices.every(v => v.z < 0)) continue
+                if(vertices.every(v => v.z < 0 || v.z > 1)) continue
 
                 const color = object.mesh.colors && object.mesh.colors.length > i ? object.mesh.colors[i] : new Vec3(1, 1, 1)
                 const depth = vertices.reduce((a, b) => a + b.z, 0) * 1/3

@@ -114,14 +114,14 @@ export class Mat4 {
     }
 
     perspective(fov:number, aspect:number, near:number, far:number): Mat4 {
-        const f = 1 / Math.tan(fov / 2)
-        const nf = 1 / (near - far)
+        const f = 1 / Math.tan(fov * Math.PI / 360)
+        const fn = 1 / (far - near)
 
         this.m.set([
             f / aspect, 0, 0, 0,
             0, f, 0, 0,
-            0, 0, (far + near) * nf, (2 * far * near) * nf,
-            0, 0, -1, 0
+            0, 0, -far * fn, -1,
+            0, 0, -far * near * fn, 0
         ])
         return this
     }

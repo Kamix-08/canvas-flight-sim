@@ -35,14 +35,26 @@ export class Renderer {
         return new Vec3(screenX, screenY, vec.z)
     }
 
+    private reversePerspective(d:number): number {
+        const near = 0.1
+        const far = Camera.renderDistance
+
+        const linearDepth = (2 * near * far) / (far + near - d * (far - near))
+        return Math.min(Math.max(
+            (linearDepth - Camera.fogDistance) / 
+            (Camera.renderDistance - Camera.fogDistance)
+        , 0), 1)
+
+    }
+
     drawTriangle(triangle:Triangle): void {
         const screenVertices = triangle.vertices
             .map(v => this.toScreenSpace(v))
 
-        const minZ = Math.min(...triangle.vertices.map(v => v.z))
-        if(minZ > Camera.fogDistance) 
-            triangle.color = lerpVec(triangle.color, Camera.skyboxColor,
-                (minZ - Camera.fogDistance) / (Camera.renderDistance - Camera.fogDistance))
+        const minZ = this.reversePerspective(Math.min(...triangle.vertices.map(v => v.z)))
+
+        if(minZ !== 0)
+            triangle.color = lerpVec(triangle.color, Camera.skyboxColor, minZ)
 
         this.ctx.fillStyle = `rgb(${triangle.color.x * 255}, ${triangle.color.y * 255}, ${triangle.color.z * 255})`
 

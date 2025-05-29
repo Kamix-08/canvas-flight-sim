@@ -4,6 +4,9 @@ import { Vec3 } from "../math/vec3.js"
 export class Airplane extends GameObject {
     update(dt:number) {
         this.transform.rotate(new Vec3(.5,1,.25).scale(dt))
+
+        // const cam = Camera.getInstance()
+        // this.transform.setPosition(cam.transform.position.clone().add(cam.transform.front.clone().add(new Vec3(.01,0,0)).scale(50)))
     }
 
     constructor() {
