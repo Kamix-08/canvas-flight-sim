@@ -8,17 +8,24 @@ export class Terrain extends GameObject {
     camera:Camera = Camera.getInstance()
     tileSize:number = 50
 
+    lastPos:number[] = [Infinity, Infinity]
+
     constructor(seed:number) {
         super()
         this.seed = seed
     }
 
     update(dt:number) {
-        const renderTiles = Math.ceil(Camera.renderDistance / this.tileSize) + 2
-        this.mesh = {vertices: [], indices: [], colors: []}
-
         const camX = this.camera.transform.position.x
         const camZ = this.camera.transform.position.z
+
+        if((this.lastPos[0]-camX)**2 + (this.lastPos[1]-camZ)**2 < Camera.renderDistance ** 2)
+            return
+
+        this.lastPos = [camX, camZ]
+
+        const renderTiles = Math.ceil(Camera.renderDistance / this.tileSize) * 2
+        this.mesh = {vertices: [], indices: [], colors: []}
 
         for(let x = -renderTiles; x < renderTiles; x++) {
             for(let z = -renderTiles; z < renderTiles; z++) {
@@ -46,22 +53,29 @@ export class Terrain extends GameObject {
         }
     }
 
+    private getHash(ix:number, iz:number): number {
+        return (hash(ix, iz, this.seed) & 0xFFFF) / 0xFFFF
+    }
+
+    private getNoise(x:number, z:number, s:number, a:number): number {
+        const ix = Math.floor(x * s)
+        const iz = Math.floor(z * s)
+
+        const h00 = this.getHash(ix    , iz    )
+        const h10 = this.getHash(ix + 1, iz    )
+        const h01 = this.getHash(ix    , iz + 1)
+        const h11 = this.getHash(ix + 1, iz + 1)
+
+        const fx = x * s - ix
+        const fz = z * s - iz
+
+        const tx = lerp(h00, h10, fx)
+        const ty = lerp(h01, h11, fx)
+
+        return (lerp(tx, ty, fz) - 0.5) * a
+    }
+
     getHeight(x:number, z:number): number {
-        const ix = Math.floor(x)
-        const iz = Math.floor(z)
-        
-        const h00 = (hash(ix    , iz    , this.seed) & 0xFFFF) / 0xFFFF
-        const h10 = (hash(ix + 1, iz    , this.seed) & 0xFFFF) / 0xFFFF
-        const h01 = (hash(ix    , iz + 1, this.seed) & 0xFFFF) / 0xFFFF
-        const h11 = (hash(ix + 1, iz + 1, this.seed) & 0xFFFF) / 0xFFFF
-        
-        const fx = x - ix
-        const fz = z - iz
-        
-        const tx =     lerp(h00, h10, fx)
-        const ty =     lerp(h01, h11, fx)
-        const height = lerp(tx, ty, fz)
-        
-        return (height - 0.5) * 100
+        return this.getNoise(x, z, 0.002, 200) + this.getNoise(x, z, 0.01, 100)
     }
 }
