@@ -44,7 +44,9 @@ export class Scene {
                     return finalMatrix.transformVec3(vert)
                 })
 
-                if(vertices.every(v => v.z < 0 || v.z > 1)) continue
+                if(vertices.every(v => v.x < -1 || v.x > 1 ||
+                                       v.y < -1 || v.y > 1 ||
+                                       v.z <  0 || v.z > 1)) continue
 
                 const color = object.mesh.colors && object.mesh.colors.length > i ? object.mesh.colors[i] : new Vec3(1, 1, 1)
                 const depth = vertices.reduce((a, b) => a + b.z, 0) * 1/3

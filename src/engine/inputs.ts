@@ -20,6 +20,9 @@ export function handleInputs(dt:number) {
     if(pressedKeys.has('i')) camera.transform.rotate(new Vec3( rspeed,0,0))
     if(pressedKeys.has('k')) camera.transform.rotate(new Vec3(-rspeed,0,0))
 
+    if(pressedKeys.has('u')) camera.transform.rotate(new Vec3(0,0,-rspeed))
+    if(pressedKeys.has('o')) camera.transform.rotate(new Vec3(0,0, rspeed))
+
     if(pressedKeys.has(' '))     camera.transform.translate(new Vec3(0, mspeed,0))
     if(pressedKeys.has('Shift')) camera.transform.translate(new Vec3(0,-mspeed,0))
 }

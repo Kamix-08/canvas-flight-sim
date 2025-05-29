@@ -96,7 +96,10 @@ export class Mat4 {
     }
 
     rotate(rot:Vec3): Mat4 {
-        return this.rotateX(rot.x).rotateY(rot.y).rotateZ(rot.z)
+        return this
+            .rotateY(rot.y)
+            .rotateX(rot.x)
+            .rotateZ(rot.z)
     }
 
     lookAt(eye:Vec3, center:Vec3, up:Vec3): Mat4 {

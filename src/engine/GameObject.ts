@@ -12,6 +12,7 @@ export class Transform {
     rotation:Vec3
     scale:Vec3
     front:Vec3
+    up:Vec3
     modelMatrix:Mat4
 
     constructor() {
@@ -19,13 +20,16 @@ export class Transform {
         this.rotation = new Vec3()
         this.scale = new Vec3(1, 1, 1)
         this.front = new Vec3()
+        this.up = new Vec3()
         this.modelMatrix = new Mat4()
         this.updateModelMatrix()
+        this.modRot()
     }
 
-    updateFront(): void {
+    updateLocals(): void {
         const rotationMatrix = new Mat4().rotate(this.rotation)
         this.front = rotationMatrix.transformVec3(new Vec3(0, 0, 1)).normalize()
+        this.up    = rotationMatrix.transformVec3(new Vec3(0, 1, 0)).normalize()
     }
 
     updateModelMatrix(): void {
@@ -34,7 +38,7 @@ export class Transform {
             .rotate(this.rotation)
             .scale(this.scale)
 
-        this.updateFront()
+        this.updateLocals()
     }
 
     setPosition(pos:Vec3): Transform {
@@ -42,8 +46,20 @@ export class Transform {
         return this
     }
 
+    private modVal(v:number, m:number): number {
+        while(v < 0) v += m
+        return v % m
+    }
+
+    private modRot() {
+        this.rotation.x = this.modVal(this.rotation.x, 2 * Math.PI)
+        this.rotation.y = this.modVal(this.rotation.y, 2 * Math.PI)
+        this.rotation.z = this.modVal(this.rotation.z, 2 * Math.PI)
+    }
+
     setRotation(rot:Vec3): Transform {
         this.rotation = rot
+        this.modRot()
         return this
     }
 
@@ -59,6 +75,7 @@ export class Transform {
 
     rotate(v:Vec3): Transform {
         this.rotation.add(v)
+        this.modRot()
         return this
     }
 

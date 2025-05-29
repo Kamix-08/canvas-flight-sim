@@ -26,13 +26,13 @@ export class Camera {
     }
 
     updateViewMatrix(): void {
-        this.transform.updateFront()
+        this.transform.updateLocals()
 
         this.viewMatrix.identity()
             .lookAt(
                 this.transform.position,
                 this.transform.position.clone().add(this.transform.front),
-                new Vec3(0,1,0)
+                this.transform.up
             )
     }
 
