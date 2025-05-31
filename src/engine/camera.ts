@@ -5,7 +5,7 @@ import { Transform } from "./GameObject.js"
 export class Camera {
     static renderDistance:number = 1000
     static fogDistance:number = 0.8 * Camera.renderDistance
-    static skyboxColor:Vec3 = new Vec3(0,1,1)
+    static skyboxColor:Vec3 = new Vec3(0,0.8,1)
 
     private static instance:Camera | null = null
     static getInstance():Camera {

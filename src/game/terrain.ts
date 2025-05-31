@@ -1,12 +1,13 @@
 import { Camera } from "../engine/camera.js"
 import { GameObject } from "../engine/GameObject.js"
-import { hash, lerp } from "../math/utils.js"
+import { hash, lerp, randomFromHash } from "../math/utils.js"
 import { Vec3 } from "../math/vec3.js"
 
 export class Terrain extends GameObject {
     seed:number
     camera:Camera = Camera.getInstance()
     tileSize:number = 50
+    cloudChunkSize:number = 750
 
     lastPos:number[] = [Infinity, Infinity]
 
@@ -22,15 +23,19 @@ export class Terrain extends GameObject {
         if((this.lastPos[0]-camX)**2 + (this.lastPos[1]-camZ)**2 < Camera.renderDistance ** 2)
             return
 
+        console.log('new chunk')
         this.lastPos = [camX, camZ]
 
-        const renderTiles = Math.ceil(Camera.renderDistance / this.tileSize) * 2
+        const renderTiles = Math.ceil(Camera.renderDistance / this.tileSize      ) * 2
+        const cloudTiles  = Math.ceil(Camera.renderDistance / this.cloudChunkSize) * 2
+
         this.mesh = {vertices: [], indices: [], colors: []}
 
+        // --- terrain --
         for(let x = -renderTiles; x < renderTiles; x++) {
             for(let z = -renderTiles; z < renderTiles; z++) {
-                const worldX = Math.floor((x * this.tileSize + camX)/this.tileSize) * this.tileSize
-                const worldZ = Math.floor((z * this.tileSize + camZ)/this.tileSize) * this.tileSize
+                const worldX = this.worldCoords(x, this.tileSize, camX)
+                const worldZ = this.worldCoords(z, this.tileSize, camZ)
 
                 const y = this.getHeight(worldX, worldZ)
                 this.mesh.vertices.push(new Vec3(worldX, y, worldZ))
@@ -40,17 +45,79 @@ export class Terrain extends GameObject {
                 const cur = this.mesh.vertices.length - 1
                 const opp = cur - 2 * renderTiles - 1
 
-                this.mesh.indices.push(
+                const idxs = [
                     [opp, opp + 1, cur],
                     [opp, cur - 1, cur]
-                )
+                ]
 
-                this.mesh.colors!.push(
-                    new Vec3(0.3,0.3,0.3),
-                    new Vec3(0.6,0.6,0.6)
-                )
+                this.mesh.indices.push(...idxs)
+                this.mesh.colors!.push(...idxs.map(l => { 
+                    const avgPos = l.reduce((a,b) => a.add(this.mesh!.vertices[b]), new Vec3(0,0,0)).scale(1/3)
+                    return this.modifyColorVector(this.getColorForHeight(avgPos.y), avgPos.x, avgPos.z)
+                }))
             }
         }
+
+        // --- clouds ---
+        for(let x = -cloudTiles; x < cloudTiles; x++) {
+            for(let z = -cloudTiles; z < cloudTiles; z++) {
+                const worldX = this.worldCoords(x, this.cloudChunkSize, camX)
+                const worldZ = this.worldCoords(z, this.cloudChunkSize, camZ)
+
+                const padding  = Math.floor(0.1 * this.cloudChunkSize)
+                const paddings = [padding, this.cloudChunkSize - padding]
+
+                const pos = new Vec3(
+                    worldX + randomFromHash(paddings[0], paddings[1], worldX, worldZ, this.seed),
+                    randomFromHash(420, 690, worldX, worldZ, this.seed),
+                    worldZ + randomFromHash(paddings[0], paddings[1], worldX+1, worldZ+1, this.seed)
+                )
+
+                const rot = randomFromHash(0, 360, worldX, worldZ, this.seed)
+                const verticesCount = Math.floor(randomFromHash(4, 12, worldX, worldZ, this.seed))
+
+                const h = randomFromHash(25, 75, worldX, worldZ, this.seed)
+                const r = randomFromHash(100, 250, worldX, worldZ, this.seed)
+
+                const startIdx = this.mesh.vertices.length
+
+                this.mesh.vertices.push(...[new Vec3(0,h,0), new Vec3(0,-h,0)].map(v => v.add(pos)))
+
+                const angleOffset = 2 * Math.PI / verticesCount
+                for(let y=0; y<2; y++) {
+                    for(let i=0; i<verticesCount; i++) {
+                        const angle = angleOffset * i + rot
+
+                        this.mesh.vertices.push(new Vec3(
+                            Math.cos(angle) * (r + randomFromHash(-25, 25, worldX + i - y, worldZ - i + y, this.seed)),
+                            y * (h + (randomFromHash(-h, h, worldX + i, worldZ + i, this.seed) - 1) / 2),
+                            Math.sin(angle) * (r + randomFromHash(-25, 25, worldX - i + y, worldZ + i - y, this.seed))
+                        ).add(pos))
+
+                        const currentVertex = startIdx + 2 + i + y * verticesCount;
+                        const nextVertex = startIdx + 2 + ((i + 1) % verticesCount) + y * verticesCount;
+
+                        if (y === 1) this.mesh.indices.push([startIdx    , nextVertex, currentVertex])
+                        else         this.mesh.indices.push([startIdx + 1, currentVertex, nextVertex])
+
+                        const current = startIdx + 2 + i
+                        const next = (i < verticesCount - 1) ? (current + 1) : (startIdx + 2)
+
+                        this.mesh.indices.push(
+                            [current, next, current + verticesCount],
+                            [next, next + verticesCount, current + verticesCount]
+                        )
+
+                        for(let _=0; _<3; _++)
+                            this.mesh.colors!.push(this.modifyColorVector(new Vec3(1,1,1), worldX+i+y+_, worldZ+i+y+_, .1))
+                    }
+                }
+            }
+        }
+    }
+
+    private worldCoords(tileId:number, tileSize:number, coordinateOffset:number): number {
+        return Math.floor((tileId * tileSize + coordinateOffset)/tileSize) * tileSize
     }
 
     private getHash(ix:number, iz:number): number {
@@ -76,6 +143,26 @@ export class Terrain extends GameObject {
     }
 
     getHeight(x:number, z:number): number {
-        return this.getNoise(x, z, 0.002, 200) + this.getNoise(x, z, 0.01, 100)
+        return this.getNoise(x, z, 1/200, 400) + 
+               this.getNoise(x, z, 1/100, 10 ) + 
+               this.getNoise(x, z, 1/10 , 1  )
+    }
+
+    private getColorForHeight(height: number): Vec3 {
+        if (height < -25)  return new Vec3(0.4 , 0.55, 0.3 )  // Lower grass
+        if (height < -10)  return new Vec3(0.45, 0.6 , 0.3 )  // Light grass
+        if (height < 5)    return new Vec3(0.35, 0.5 , 0.25)  // Dense grass/forest
+        if (height < 35)   return new Vec3(0.45, 0.45, 0.35)  // Light rocky terrain
+        if (height < 80)   return new Vec3(0.5 , 0.5 , 0.45)  // Rocky terrain
+        if (height < 155)  return new Vec3(0.65, 0.65, 0.65)  // Mountain
+        return new Vec3(0.95, 0.95, 0.95)                     // Snow peaks
+    }
+
+    private modifyColorVector(color:Vec3, x:number, z:number, displacement:number = 0.03): Vec3 {
+        return color.add(new Vec3(
+            randomFromHash(-displacement, displacement, x, z, this.seed),
+            randomFromHash(-displacement, displacement, x, z, this.seed),
+            randomFromHash(-displacement, displacement, x, z, this.seed)
+        ))
     }
 }

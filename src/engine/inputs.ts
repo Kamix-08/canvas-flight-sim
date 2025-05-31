@@ -5,7 +5,7 @@ const camera = Camera.getInstance()
 const pressedKeys:Set<string> = new Set<string>()
 
 export function handleInputs(dt:number) {
-    const mspeed = 100 * dt
+    const mspeed = 500 * dt
     const rspeed = 1   * dt
 
     if(pressedKeys.has('w')) camera.transform.move( mspeed)
@@ -24,11 +24,11 @@ export function handleInputs(dt:number) {
     if(pressedKeys.has('o')) camera.transform.rotate(new Vec3(0,0, rspeed))
 
     if(pressedKeys.has(' '))     camera.transform.translate(new Vec3(0, mspeed,0))
-    if(pressedKeys.has('Shift')) camera.transform.translate(new Vec3(0,-mspeed,0))
+    if(pressedKeys.has('shift')) camera.transform.translate(new Vec3(0,-mspeed,0))
 }
 
-document.addEventListener('keydown', e => pressedKeys.add   (e.key))
-document.addEventListener('keyup',   e => pressedKeys.delete(e.key))
+document.addEventListener('keydown', e => pressedKeys.add   (e.key.toLowerCase()))
+document.addEventListener('keyup',   e => pressedKeys.delete(e.key.toLowerCase()))
 
 export function handleResize() {
     const maxWidth  = 1920

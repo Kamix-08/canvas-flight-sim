@@ -3,11 +3,10 @@ import { Vec3 } from "../math/vec3.js"
 import { Camera } from "../engine/camera.js"
 
 export class Airplane extends GameObject {
-    update(dt:number) {
-        this.transform.rotate(new Vec3(.5,1,.25).scale(dt))
+    cam:Camera = Camera.getInstance()
 
-        const cam = Camera.getInstance()
-        this.transform.setPosition(cam.transform.position.clone().add(cam.transform.front.clone().add(new Vec3(.01,0,0)).scale(50)))
+    update(dt:number) {
+        this.transform.setPosition(this.cam.transform.position.clone().add(this.cam.transform.front.clone().add(new Vec3(.01,0,0)).scale(50)))
     }
 
     constructor() {
@@ -25,17 +24,15 @@ export class Airplane extends GameObject {
             new Vec3(1, 0, 0),
             new Vec3(0, 1, 0),
             new Vec3(0, 0, 1),
-            new Vec3(1, 1, 0),
-            new Vec3(1, 0, 1),
-            new Vec3(0, 1, 1),
-            new Vec3(1, 1, 1),
-            new Vec3(0.5, 0.5, 0.5),
-            new Vec3(0.5, 0, 0),
-            new Vec3(0, 0.5, 0),
-            new Vec3(0, 0, 0.5),
-            new Vec3(0.5, 0.5, 0) 
+            new Vec3(1, 0, 0),
+            new Vec3(0, 1, 0),
+            new Vec3(0, 0, 1),
+            new Vec3(1, 0, 0),
+            new Vec3(0, 1, 0),
+            new Vec3(0, 0, 1),
+            new Vec3(1, 0, 0),
+            new Vec3(0, 1, 0),
+            new Vec3(0, 0, 1),
         ]})
-
-        this.transform.setScale(new Vec3(1.2,1.2,1.2)).setPosition(new Vec3(0,0,30))
     }
 }

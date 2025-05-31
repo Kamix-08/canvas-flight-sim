@@ -18,3 +18,11 @@ export function lerpVec(a:Vec3, b:Vec3, t:number): Vec3 {
     r.z = lerp(a.z, b.z, t)
     return r
 }
+
+export function random(min:number, max:number): number {
+    return Math.random() * (max - min) + min
+}
+
+export function randomFromHash(min:number, max:number, x:number, z:number, seed:number): number {
+    return ((hash(x, z, seed) >>> 0) + 0.5) / 2**32 * (max - min) + min
+}
