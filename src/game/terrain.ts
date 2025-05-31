@@ -1,6 +1,6 @@
 import { Camera } from "../engine/camera.js"
 import { GameObject } from "../engine/GameObject.js"
-import { hash, lerp, randomFromHash } from "../math/utils.js"
+import { hash, lerp, randomFromHash, modifyColorVector } from "../math/utils.js"
 import { Vec3 } from "../math/vec3.js"
 
 export class Terrain extends GameObject {
@@ -53,7 +53,7 @@ export class Terrain extends GameObject {
                 this.mesh.indices.push(...idxs)
                 this.mesh.colors!.push(...idxs.map(l => { 
                     const avgPos = l.reduce((a,b) => a.add(this.mesh!.vertices[b]), new Vec3(0,0,0)).scale(1/3)
-                    return this.modifyColorVector(this.getColorForHeight(avgPos.y), avgPos.x, avgPos.z)
+                    return modifyColorVector(this.getColorForHeight(avgPos.y), avgPos.x, avgPos.z, this.seed)
                 }))
             }
         }
@@ -109,7 +109,7 @@ export class Terrain extends GameObject {
                         )
 
                         for(let _=0; _<3; _++)
-                            this.mesh.colors!.push(this.modifyColorVector(new Vec3(1,1,1), worldX+i+y+_, worldZ+i+y+_, .1))
+                            this.mesh.colors!.push(modifyColorVector(new Vec3(1,1,1), worldX+i+y+_, worldZ+i+y+_, this.seed, .1))
                     }
                 }
             }
@@ -156,13 +156,5 @@ export class Terrain extends GameObject {
         if (height < 80)   return new Vec3(0.5 , 0.5 , 0.45)  // Rocky terrain
         if (height < 155)  return new Vec3(0.65, 0.65, 0.65)  // Mountain
         return new Vec3(0.95, 0.95, 0.95)                     // Snow peaks
-    }
-
-    private modifyColorVector(color:Vec3, x:number, z:number, displacement:number = 0.03): Vec3 {
-        return color.add(new Vec3(
-            randomFromHash(-displacement, displacement, x, z, this.seed),
-            randomFromHash(-displacement, displacement, x, z, this.seed),
-            randomFromHash(-displacement, displacement, x, z, this.seed)
-        ))
     }
 }

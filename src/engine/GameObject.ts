@@ -47,8 +47,9 @@ export class Transform {
     }
 
     private modVal(v:number, m:number): number {
-        while(v < 0) v += m
-        return v % m
+        // while(v < 0) v += m
+        // return v % m
+        return v
     }
 
     private modRot() {
@@ -97,6 +98,7 @@ export class Transform {
 
 export abstract class GameObject {
     transform:Transform
+    onTop:boolean = false
     mesh?:Mesh
 
     constructor(mesh?:Mesh) {

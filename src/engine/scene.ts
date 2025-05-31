@@ -8,6 +8,7 @@ export interface Triangle {
     vertices:Vec3[]
     color:Vec3
     depth:number
+    onTop:boolean
 }
 
 export class Scene {
@@ -34,7 +35,7 @@ export class Scene {
             if(!object.mesh) continue
             
             object.transform.updateModelMatrix()
-            const finalMatrix:Mat4 = cameraMatrix.clone().multiply(object.transform.modelMatrix)
+            const finalMatrix:Mat4 = !object.onTop ? cameraMatrix.clone().multiply(object.transform.modelMatrix) : object.transform.modelMatrix.clone()
 
             for (let i = 0; i < object.mesh.indices.length; i++) {
                 const indices = object.mesh.indices[i]
@@ -51,11 +52,15 @@ export class Scene {
                 const color = object.mesh.colors && object.mesh.colors.length > i ? object.mesh.colors[i] : new Vec3(1, 1, 1)
                 const depth = vertices.reduce((a, b) => a + b.z, 0) * 1/3
 
-                triangles.push({ vertices, color, depth })
+                triangles.push({ vertices, color, depth, onTop:object.onTop })
             }
         }
 
-        triangles.sort((a, b) => b.depth - a.depth)
+        triangles.sort((a, b) => {
+            if((a.onTop || b.onTop) && (a.onTop !== b.onTop))
+                return b.onTop ? -1 : 1
+            return b.depth - a.depth
+        })
 
         for (const tri of triangles)
             renderer.drawTriangle(tri)

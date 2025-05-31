@@ -26,3 +26,11 @@ export function random(min:number, max:number): number {
 export function randomFromHash(min:number, max:number, x:number, z:number, seed:number): number {
     return ((hash(x, z, seed) >>> 0) + 0.5) / 2**32 * (max - min) + min
 }
+
+export function modifyColorVector(color:Vec3, x:number, z:number, seed:number, displacement:number = 0.03): Vec3 {
+    return color.add(new Vec3(
+        randomFromHash(-displacement, displacement, x, z, seed),
+        randomFromHash(-displacement, displacement, x, z, seed),
+        randomFromHash(-displacement, displacement, x, z, seed)
+    ))
+}

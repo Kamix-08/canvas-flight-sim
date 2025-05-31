@@ -1,12 +1,15 @@
-import { handleInputs, handleResize } from "./engine/inputs.js"
+import { handleInputs, handleResize, init_inputs } from "./engine/inputs.js"
 import { Scene } from "./engine/scene.js"
-import { Airplane } from "./game/airplane.js"
+import { Airplane, AirplaneIndicator } from "./game/airplane.js"
 import { Terrain } from "./game/terrain.js"
 
 let lastTime:number = 0
 
 const scene = new Scene()
-scene.addObject(new Airplane())
+const airplane = new Airplane()
+
+scene.addObject(airplane)
+scene.addObject(new AirplaneIndicator(airplane))
 scene.addObject(new Terrain(841))
 
 function gameLoop(time:number) {
@@ -23,5 +26,6 @@ function gameLoop(time:number) {
     requestAnimationFrame(gameLoop)
 }
 
+init_inputs(airplane)
 handleResize()
 gameLoop(0)

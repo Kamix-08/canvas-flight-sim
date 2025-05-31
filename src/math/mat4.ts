@@ -143,16 +143,6 @@ export class Mat4 {
         return new Vec3(x, y, z).scale(1 / Math.abs(w))
     }
 
-    toArray(): Float32Array {
-        return this.m.slice()
-    }
-
-    static fromArray(arr:number[]): Mat4 {
-        const mat = new Mat4()
-        if (arr.length === 16) mat.m.set(arr)
-        return mat
-    }
-
     transpose(): Mat4 {
         const result = new Mat4()
         for (let i = 0; i < 4; i++)
@@ -160,5 +150,13 @@ export class Mat4 {
                 result.m[j * 4 + i] = this.m[i * 4 + j]
         this.m = result.m
         return this
+    }
+
+    toEulerAngles(): Vec3 {
+        return new Vec3(
+            Math.atan2(this.m[9], this.m[10]),
+            Math.atan2(-this.m[8], Math.sqrt(this.m[9]*this.m[9] + this.m[10]*this.m[10])),
+            Math.atan2(this.m[4], this.m[0])
+        )
     }
 }
