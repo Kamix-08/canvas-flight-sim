@@ -1,4 +1,5 @@
 import { Airplane } from "../game/airplane.js"
+import { lerp } from "../math/utils.js"
 import { Vec3 } from "../math/vec3.js"
 
 let plane:Airplane|null = null
@@ -11,26 +12,30 @@ export function init_inputs(airplane:Airplane) {
 export function handleInputs(dt:number) {
     if(!plane) return
 
-    const mspeed = 500 * dt
-    const rspeed = 1   * dt
+    const rspeed = 1 * dt
 
-    if(pressedKeys.has('w')) plane.transform.move( mspeed)
-    if(pressedKeys.has('s')) plane.transform.move(-mspeed)
-        
-    if(pressedKeys.has('a')) plane.transform.moveVec(new Vec3( mspeed,0,0))
-    if(pressedKeys.has('d')) plane.transform.moveVec(new Vec3(-mspeed,0,0))
-
-    if(pressedKeys.has('j')) plane.transform.rotate(new Vec3(0,-rspeed,0))
-    if(pressedKeys.has('l')) plane.transform.rotate(new Vec3(0, rspeed,0))
+    if(pressedKeys.has('j')) {
+        plane.transform.rotate(new Vec3(0,-rspeed,0))
+        plane.transform.rotate(new Vec3(0,0, rspeed))
+    }
+    
+    if(pressedKeys.has('l')) {
+        plane.transform.rotate(new Vec3(0, rspeed,0))
+        plane.transform.rotate(new Vec3(0,0,-rspeed))
+    }
 
     if(pressedKeys.has('i')) plane.transform.rotate(new Vec3( rspeed,0,0))
     if(pressedKeys.has('k')) plane.transform.rotate(new Vec3(-rspeed,0,0))
 
-    if(pressedKeys.has('u')) plane.transform.rotate(new Vec3(0,0,-rspeed))
-    if(pressedKeys.has('o')) plane.transform.rotate(new Vec3(0,0, rspeed))
-
-    if(pressedKeys.has(' '))     plane.transform.translate(new Vec3(0, mspeed,0))
-    if(pressedKeys.has('shift')) plane.transform.translate(new Vec3(0,-mspeed,0))
+    plane.transform.rotation = new Vec3(
+        plane.transform.rotation.x,
+        plane.transform.rotation.y,
+        lerp(
+            plane.transform.rotation.z,
+            0,
+            dt
+        )
+    )
 }
 
 document.addEventListener('keydown', e => pressedKeys.add   (e.key.toLowerCase()))

@@ -2,21 +2,27 @@ import { GameObject } from "../engine/GameObject.js"
 import { Vec3 } from "../math/vec3.js"
 import { lerpVec, modifyColorVector } from "../math/utils.js"
 import { Camera } from "../engine/camera.js"
+import { Mat4 } from "../math/mat4.js"
 
 export class Airplane extends GameObject {
     cam:Camera = Camera.getInstance()
-    offset:Vec3 = new Vec3(0, 10, -50)
+    offset:number = 50
     followSpeed:number = 2
+    speed:number = 500
 
     update(dt:number) {
         const targetPos = this.transform.position.clone()
-            .add(this.offset)
+            .sub(this.transform.front.clone().scale(this.offset))
 
         this.cam.transform.position = lerpVec(
             this.cam.transform.position,
             targetPos,
             dt * this.followSpeed
         )
+
+        this.cam.transform.rotation = this.transform.rotation.clone()
+        
+        this.transform.move(this.speed * dt)
     }
 
     constructor() {
@@ -69,6 +75,7 @@ export class Airplane extends GameObject {
         ]})
 
         this.transform.setScale(new Vec3(.75,.75,.75))
+        this.transform.setPosition(new Vec3(0,400,0))
     }
 }
 
