@@ -25,7 +25,6 @@ export class Terrain extends GameObject {
         if((this.lastPos[0]-camX)**2 + (this.lastPos[1]-camZ)**2 < Camera.renderDistance ** 2)
             return
 
-        console.log('new chunk')
         this.lastPos = [camX, camZ]
 
         const renderTiles = Math.ceil(Camera.renderDistance / this.tileSize      ) * 2
