@@ -4,16 +4,18 @@ import { hash, lerp, randomFromHash, modifyColorVector } from "../math/utils.js"
 import { Vec3 } from "../math/vec3.js"
 
 export class Terrain extends GameObject {
-    seed:number
+    seed:number = 841
     camera:Camera = Camera.getInstance()
     tileSize:number = 50
     cloudChunkSize:number = 750
 
+    static instance:Terrain|null = null
+
     lastPos:number[] = [Infinity, Infinity]
 
-    constructor(seed:number) {
-        super()
-        this.seed = seed
+    static getInstance(): Terrain {
+        if(!Terrain.instance) Terrain.instance = new Terrain()
+        return Terrain.instance
     }
 
     update(dt:number) {

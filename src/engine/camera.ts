@@ -3,7 +3,7 @@ import { Vec3 } from "../math/vec3.js"
 import { Transform } from "./GameObject.js"
 
 export class Camera {
-    static renderDistance:number = 1000
+    static renderDistance:number = 1300
     static fogDistance:number = 0.8 * Camera.renderDistance
     static skyboxColor:Vec3 = new Vec3(0,0.8,1)
 

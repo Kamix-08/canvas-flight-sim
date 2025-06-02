@@ -13,7 +13,7 @@ const airplane = new Airplane()
 
 scene.addObject(airplane)
 scene.addObject(new AirplaneIndicator(airplane))
-scene.addObject(new Terrain(841))
+scene.addObject(Terrain.getInstance())
 
 function gameLoop(time:number) {
     const dt = (time - lastTime)/1000.0

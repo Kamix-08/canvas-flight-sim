@@ -2,10 +2,12 @@ import { GameObject } from "../engine/GameObject.js"
 import { Vec3 } from "../math/vec3.js"
 import { lerpVec, modifyColorVector } from "../math/utils.js"
 import { Camera } from "../engine/camera.js"
-import { Mat4 } from "../math/mat4.js"
+import { Terrain } from "../game/terrain.js"
 
 export class Airplane extends GameObject {
-    cam:Camera = Camera.getInstance()
+    cam:Camera  =  Camera.getInstance()
+    ter:Terrain = Terrain.getInstance()
+
     offset:number = 50
     followSpeed:number = 2
     speed:number = 500
@@ -23,6 +25,12 @@ export class Airplane extends GameObject {
         this.cam.transform.rotation = this.transform.rotation.clone()
         
         this.transform.move(this.speed * dt)
+
+        const groundHeight = this.ter.getHeight(this.transform.position.x, this.transform.position.z)
+        if(this.transform.position.y > groundHeight) return
+
+        this.transform.position.y = groundHeight
+        this.transform.rotation.x += dt
     }
 
     constructor() {
